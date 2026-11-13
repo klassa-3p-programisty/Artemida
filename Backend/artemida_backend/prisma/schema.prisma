@@ -30,6 +30,13 @@ enum UserStatus {
   PENDING
 }
 
+enum AssignmentStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
 model User{
 
   id Int @id @default(autoincrement())
@@ -65,16 +72,18 @@ model StudentProfile {
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Student-specific fields
-  student_class  SchoolClass? 
+  classId       Int?
+  student_class SchoolClass? @relation(fields: [classId], references: [id], onDelete: SetNull)
 }
 
 model SchoolClass{
-  id Int @id @default(autoincrement())
+  id         Int @id @default(autoincrement())
   student_id Int @unique
 
-  student StudentProfile @relation(fields: [student_id], references: [userId], onDelete: Cascade)
-
-  
+  // student StudentProfile @relation(fields: [student_id], references: [userId], onDelete: Cascade)
+  students StudentProfile[]
+  teachers TeacherProfile[]
+  assignments TeacherAssingment[]
 
 }
 
@@ -86,5 +95,52 @@ model TeacherProfile {
 
   // Teacher-specific fields
   specialization String?
+  classes SchoolClass[]
+  assignments TeacherAssingment[]
 }
 
+model TeacherAssingment {
+  id Int @id @default(autoincrement())
+
+  teacherId String
+  classId Int
+  subjectId Int
+
+  teacher TeacherProfile @relation(fields: [teacherId], references: [id])
+  schoolClass SchoolClass @relation(fields: [classId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+  assignments Assignment[]
+  @@unique([teacherId, classId, subjectId])
+}
+
+model Subject {
+  id    Int @id @default(autoincrement())
+  name  String @unique
+  assingments TeacherAssingment[]
+}
+
+model Assignment {
+  id Int @id @default(autoincrement())
+
+  title String
+  description String?
+  deadline DateTime
+  teacherAssignmentId Int
+  status AssignmentStatus @default(DRAFT)
+  teacherAssignment  TeacherAssingment @relation(fields: [teacherAssignmentId], references: [id], onDelete: Restrict)
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+  attachment AssignmentAttachment[]
+}
+
+model AssignmentAttachment {
+  id Int @id @default(autoincrement())
+
+  assignmentId Int
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  fileName String
+  fileUrl String
+  fileSize Int
+  createdAt DateTime @default(now())
+  
+}
