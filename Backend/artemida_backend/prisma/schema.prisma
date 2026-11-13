@@ -15,3 +15,76 @@ datasource db {
 model TEST{
   testID Int @id @default(autoincrement())
 }
+
+
+enum Role{
+  ADMIN
+  TEACHER
+  STUDENT
+  TESTER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  PENDING
+}
+
+model User{
+
+  id Int @id @default(autoincrement())
+
+  role Role @default(STUDENT) 
+  status UserStatus @default(PENDING)
+
+  studentProfile StudentProfile?
+  teacherProfile TeacherProfile?
+
+
+  name String 
+  surname String 
+  description String?
+  profileImageUrl String? @default("https://res.cloudinary.com/dcknki3cq/image/upload/v1794601192/user.png")
+  email String? @unique
+
+  login String @unique 
+  passwordHash String
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+}
+
+
+model StudentProfile {
+  public_id        String @id @default(uuid(7))
+  userId    Int @unique
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Student-specific fields
+  student_class  SchoolClass? 
+}
+
+model SchoolClass{
+  id Int @id @default(autoincrement())
+  student_id Int @unique
+
+  student StudentProfile @relation(fields: [student_id], references: [userId], onDelete: Cascade)
+
+  
+
+}
+
+model TeacherProfile {
+  id        String @id @default(uuid())
+  userId    Int @unique
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Teacher-specific fields
+  specialization String?
+}
+
