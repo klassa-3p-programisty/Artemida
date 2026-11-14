@@ -89,6 +89,31 @@ enum GroupFormationMode {
   TEACHER
 }
 
+enum GradeValue {
+  G1       @map("1")
+  G1_PLUS  @map("1+")
+
+  G2_MINUS @map("2-")
+  G2       @map("2")
+  G2_PLUS  @map("2+")
+
+  G3_MINUS @map("3-")
+  G3       @map("3")
+  G3_PLUS  @map("3+")
+
+  G4_MINUS @map("4-")
+  G4       @map("4")
+  G4_PLUS  @map("4+")
+
+  G5_MINUS @map("5-")
+  G5       @map("5")
+  G5_PLUS  @map("5+")
+
+  G6_MINUS @map("6-")
+  G6       @map("6")
+}
+
+
 model User {
   id Int @id @default(autoincrement())
 
@@ -331,7 +356,7 @@ model Grade {
   student           StudentProfile    @relation(fields: [studentId], references: [public_id], onDelete: Restrict)
   teacher           TeacherProfile    @relation(fields: [teacherId], references: [id], onDelete: Restrict)
 
-  value      Int?
+  value GradeValue?
   points     Float?
   percentage Float?
   comment    String?
@@ -352,8 +377,8 @@ model GradeHistory {
   grade     Grade          @relation(fields: [gradeId], references: [id], onDelete: Restrict)
   teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Restrict)
 
-  oldValue      Int?
-  newValue      Int?
+  oldValue GradeValue?
+  newValue GradeValue?
   oldPoints     Float?
   newPoints     Float?
   oldPercentage Float?
