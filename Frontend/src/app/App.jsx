@@ -1,8 +1,9 @@
-
+import { MainRouter } from "./routes/mainRouter"
 
 function App() {
   return (      
-   <h1>s</h1> 
+   
+   <MainRouter />
   )
 }
 
