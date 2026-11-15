@@ -1,4 +1,4 @@
-# Artemida — Frontend
+# Artemida - Frontend
 
 **The web client of Artemida, a homework management platform for students, teachers, and administrators.**
 
@@ -42,7 +42,7 @@ Planned and in-progress functionality:
 ```bash
 # 1. Clone the repository
 git clone https://github.com/klassa-3p-programisty/Artemida.git
-cd <repository-folder>
+cd Artemida
 
 # 2. Install dependencies
 npm install
@@ -64,6 +64,7 @@ The app will be available at `http://localhost:5173` (or the port shown in your 
 
 ## Project Structure
 
+```text
 src/
 ├── app/                 
 │   ├── providers/       
@@ -86,7 +87,8 @@ src/
 │   └── lib/           
 │   
 │
-└── main.*              
+└── main.*
+```
 
 ## Roadmap
 
@@ -96,7 +98,6 @@ src/
 - [ ] Password Recovery Request
 - [ ] Admin Recovery Requests
 - [ ] Role-based Dashboard
-- [ ] Notifications Page
 - [ ] Notifications Page
 - [ ] Profile Page & Avatar
 
