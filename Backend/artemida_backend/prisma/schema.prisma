@@ -144,6 +144,8 @@ model User {
 
   sessions  UserSession[]
   auditLogs AuditLog[]
+
+  @@index([name, surname])
 }
 
 model StudentProfile {
