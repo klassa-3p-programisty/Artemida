@@ -7,10 +7,15 @@ import { createClient } from 'redis';
 import session from 'express-session'
 import {RedisStore} from 'connect-redis';
 import { isDev } from './common/helpers/helpers.js';
+import { ApiExceptionFilter } from './common/filters/api-exception.filter.js';
+import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor.js';
+import { Reflector } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new ApiExceptionFilter());
+  app.useGlobalInterceptors(new ResponseEnvelopeInterceptor(app.get(Reflector)));
 
   const mode: string | undefined = process.env.NODE_ENV
 

@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { HealthCheck, HealthCheckService, HttpHealthIndicator } from '@nestjs/terminus';
 import { PrismaService } from '../prismaORM/prisma.service.js';
 import { PrismaHealthIndicator } from '../prismaORM/prisma.health.js';
+import { SkipResponseEnvelope } from '../common/decorators/skip-response-envelope.decorator.js';
 
 @Controller('health')
 export class HealthController {
@@ -14,6 +15,7 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
+  @SkipResponseEnvelope()
   check() {
     return this.health.check([
       () => this.http.pingCheck('nestjs-docs', 'https://docs.nestjs.com'),
