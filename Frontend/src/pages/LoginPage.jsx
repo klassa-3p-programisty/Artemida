@@ -1,7 +1,34 @@
 import styles from "./styles/LoginPage.module.css";
 import { PasswordInput } from "../features/auth/components/PasswordInput";
+import { useLogin } from "../features/auth/hooks/useAuth";
+import {useNavigate} from "react-router"
+import { PAGES } from "../app/routes/pages";
 
-function LoginPage() {
+
+ function LoginPage() {
+
+  const login = useLogin();
+
+  const navigate = useNavigate();
+
+  const handleSumbit = async (e) => {
+    e.preventDefault();
+
+     const formData = new FormData(e.currentTarget);
+
+    const userLogin = formData.get("login");
+    const password = formData.get("password");
+
+    try {
+    await login.mutateAsync({ login:
+      userLogin,
+      password,
+    });
+    navigate(PAGES.dashboard)
+  } catch (error) {
+    console.error('error' , error)
+  }
+  }
   return (
     <section className={styles.wrapper}>
       <div className={styles.left}>
@@ -49,7 +76,7 @@ function LoginPage() {
           </article>
 
           <article className={styles.formArticle}>
-            <form className={styles.form} aria-label="Sign in form">
+            <form onSubmit={handleSumbit} className={styles.form} aria-label="Sign in form">
               <div className={styles.inputGroup}>
                 <label htmlFor="email" className={styles.label}>
                   Login
@@ -62,10 +89,10 @@ function LoginPage() {
                     </svg>
                   </span>
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
+                    id="login"
+                    name="login"
+                    type="text"
+                    autoComplete="username"
                     required
                     className={styles.input}
                   />
