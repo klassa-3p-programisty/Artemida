@@ -5,7 +5,7 @@ import {useNavigate} from "react-router"
 import { PAGES } from "../app/routes/pages";
 
 
- function LoginPage() {
+function LoginPage() {
 
   const login = useLogin();
 
