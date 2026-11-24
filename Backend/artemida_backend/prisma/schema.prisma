@@ -90,8 +90,8 @@ enum GroupFormationMode {
 }
 
 enum GradeValue {
-  G1       @map("1")
-  G1_PLUS  @map("1+")
+  G1      @map("1")
+  G1_PLUS @map("1+")
 
   G2_MINUS @map("2-")
   G2       @map("2")
@@ -112,7 +112,6 @@ enum GradeValue {
   G6_MINUS @map("6-")
   G6       @map("6")
 }
-
 
 model User {
   id Int @id @default(autoincrement())
@@ -144,6 +143,7 @@ model User {
 
   sessions  UserSession[]
   auditLogs AuditLog[]
+  deletedAt DateTime?
 
   @@index([name, surname])
 }
@@ -160,6 +160,8 @@ model StudentProfile {
   submissionMemberships      SubmissionMember[]
   grades                     Grade[]
   assignmentGroupMemberships AssignmentGroupMember[]
+  deletedAt                  DateTime?
+  updatedAt                  DateTime                @updatedAt
 }
 
 model SchoolClass {
@@ -168,7 +170,10 @@ model SchoolClass {
   // student StudentProfile @relation(fields: [student_id], references: [userId], onDelete: Cascade)
   name        String              @unique
   students    StudentProfile[]
-  assignments TeacherAssingment[]
+  assignments TeacherAssignment[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
 }
 
 model TeacherProfile {
@@ -179,13 +184,15 @@ model TeacherProfile {
 
   // Teacher-specific fields
   specialization  String?
-  assignments     TeacherAssingment[]
+  assignments     TeacherAssignment[]
   grades          Grade[]
   assignmentNotes AssignmentNote[]
   gradeHistory    GradeHistory[]
+  deletedAt       DateTime?
+  updatedAt       DateTime            @updatedAt
 }
 
-model TeacherAssingment {
+model TeacherAssignment {
   id Int @id @default(autoincrement())
 
   teacherId String
@@ -196,6 +203,9 @@ model TeacherAssingment {
   schoolClass SchoolClass    @relation(fields: [classId], references: [id])
   subject     Subject        @relation(fields: [subjectId], references: [id])
   assignments Assignment[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
 
   @@unique([teacherId, classId, subjectId])
 }
@@ -203,7 +213,10 @@ model TeacherAssingment {
 model Subject {
   id          Int                 @id @default(autoincrement())
   name        String              @unique
-  assingments TeacherAssingment[]
+  assignments TeacherAssignment[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
 }
 
 model Assignment {
@@ -214,8 +227,8 @@ model Assignment {
   deadline            DateTime
   teacherAssignmentId Int
   status              AssignmentStatus       @default(DRAFT)
-  teacherAssignment   TeacherAssingment      @relation(fields: [teacherAssignmentId], references: [id], onDelete: Restrict)
-  createAt            DateTime               @default(now())
+  teacherAssignment   TeacherAssignment      @relation(fields: [teacherAssignmentId], references: [id], onDelete: Restrict)
+  createdAt           DateTime               @default(now())
   updateAt            DateTime               @updatedAt
   attachment          AssignmentAttachment[]
   notes               AssignmentNote[]
@@ -224,6 +237,8 @@ model Assignment {
   groupFormationMode  GroupFormationMode?
   groups              AssignmentGroup[]
   submission          Submission[]
+  deletedAt           DateTime?
+  updatedAt           DateTime               @updatedAt
 }
 
 model AssignmentAttachment {
@@ -232,12 +247,15 @@ model AssignmentAttachment {
   assignmentId Int
   assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 
-  storageKey String?  @unique
+  storageKey String?   @unique
   fileName   String
   fileUrl    String
   fileSize   Int
   fileType   String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
+
+  updatedAt DateTime @updatedAt
 }
 
 model AssignmentNote {
@@ -250,8 +268,9 @@ model AssignmentNote {
   teacher    TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Restrict)
 
   content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([assignmentId])
   @@index([teacherId])
@@ -268,6 +287,9 @@ model AssignmentGroup {
   createdAt   DateTime                @default(now())
   submissions Submission[]
 
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
   @@index([assignmentId])
 }
 
@@ -280,6 +302,9 @@ model AssignmentGroupMember {
   student   StudentProfile  @relation(fields: [studentId], references: [public_id], onDelete: Restrict)
 
   joinedAt DateTime @default(now())
+
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@unique([groupId, studentId])
   @@index([studentId])
@@ -299,6 +324,8 @@ model Submission {
   group               AssignmentGroup?    @relation(fields: [groupId], references: [id], onDelete: Restrict)
   resubmissionAllowed Boolean             @default(false)
 
+  deletedAt DateTime?
+
   @@index([assignmentId])
 }
 
@@ -313,6 +340,9 @@ model SubmissionVersion {
   submittedAt DateTime         @default(now())
   files       SubmissionFile[]
   grades      Grade[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
 
   @@unique([submissionId, version])
 }
@@ -330,6 +360,9 @@ model SubmissionFile {
   fileSize   Int
   createdAt  DateTime @default(now())
 
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
   @@index([submissionVersionId])
 }
 
@@ -342,6 +375,9 @@ model SubmissionMember {
   submission Submission     @relation(fields: [submissionId], references: [id], onDelete: Restrict)
   student    StudentProfile @relation(fields: [studentId], references: [public_id], onDelete: Restrict)
   joinedAt   DateTime       @default(now())
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  deletedAt  DateTime?
 
   @@unique([submissionId, studentId])
   @@index([studentId])
@@ -358,13 +394,14 @@ model Grade {
   student           StudentProfile    @relation(fields: [studentId], references: [public_id], onDelete: Restrict)
   teacher           TeacherProfile    @relation(fields: [teacherId], references: [id], onDelete: Restrict)
 
-  value GradeValue?
+  value      GradeValue?
   points     Float?
   percentage Float?
   comment    String?
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
   history    GradeHistory[]
+  deletedAt  DateTime?
 
   @@unique([submissionVersionId, studentId])
   @@index([studentId])
@@ -379,16 +416,19 @@ model GradeHistory {
   grade     Grade          @relation(fields: [gradeId], references: [id], onDelete: Restrict)
   teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Restrict)
 
-  oldValue GradeValue?
-  newValue GradeValue?
+  oldValue      GradeValue?
+  newValue      GradeValue?
   oldPoints     Float?
   newPoints     Float?
   oldPercentage Float?
   newPercentage Float?
   reason        String?
-  changedAt     DateTime @default(now())
+  changedAt     DateTime    @default(now())
   oldComment    String?
   newComment    String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
 
   @@index([gradeId, changedAt])
   @@index([teacherId])
@@ -406,6 +446,8 @@ model Notification {
   isRead    Boolean          @default(false)
   readAt    DateTime?
   createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  deletedAt DateTime?
 
   @@index([userId, isRead])
   @@index([createdAt])
@@ -420,6 +462,7 @@ model Conversation {
   messages  Message[]
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt
+  deletedAt DateTime?
 }
 
 model ConversationMember {
@@ -432,6 +475,9 @@ model ConversationMember {
 
   joinedAt   DateTime  @default(now())
   lastReadAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
 
   @@unique([conversationId, userId])
   @@index([userId])
@@ -453,9 +499,10 @@ model Message {
   forwardedFrom   Message?            @relation("MessageForwards", fields: [forwardedFromId], references: [id], onDelete: SetNull)
   forwards        Message[]           @relation("MessageForwards")
   attachments     MessageAttachment[]
-  isDeleted       Boolean             @default(false)
+  // isDeleted       Boolean             @default(false)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
 
   @@index([conversationId, createdAt])
   @@index([senderId])
@@ -467,12 +514,14 @@ model MessageAttachment {
   messageId Int
   message   Message @relation(fields: [messageId], references: [id], onDelete: Restrict)
 
-  storageKey String   @unique
+  storageKey String    @unique
   fileName   String
   fileUrl    String
   fileType   String
   fileSize   Int
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
 
   @@index([messageId])
 }
@@ -489,6 +538,9 @@ model AuditLog {
   details    Json?
   createdAt  DateTime    @default(now())
 
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
   @@index([actorId, createdAt])
   @@index([entityType, entityId])
 }
@@ -503,6 +555,8 @@ model UserSession {
   createdAt DateTime  @default(now())
   expiresAt DateTime
   revokedAt DateTime?
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([userId])
   @@index([expiresAt])
@@ -521,6 +575,7 @@ model CalendarEvent {
   endsAt      DateTime?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
 
   @@index([userId, startsAt])
 }
@@ -539,6 +594,9 @@ model PasswordResetRequest {
   createdAt    DateTime            @default(now())
   processedAt  DateTime?
   completedAt  DateTime?
+
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([userId, status])
   @@index([adminId])
