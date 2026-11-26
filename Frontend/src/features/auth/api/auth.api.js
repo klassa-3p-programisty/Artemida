@@ -33,8 +33,12 @@ async login(login , password) {
     });
 
     if (!res.ok) {
-        throw new Error("incorrect login or password");
+        const err = new Error("incorrect login or password");
+        err.status = res.status;
+        throw err;
         }
+
+    return res.json();
     },
 
 async logout(){

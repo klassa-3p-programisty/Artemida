@@ -6,6 +6,7 @@ export function PasswordInput({
   label = "Password",
   name = "password",
   autoComplete = "current-password",
+  className = "",
   ...props
 }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -33,7 +34,7 @@ export function PasswordInput({
           name={name}
           type={isVisible ? "text" : "password"}
           autoComplete={autoComplete}
-          className={`${styles.input} ${styles.passwordInput}`}
+          className={`${styles.input} ${styles.passwordInput} ${className}`}
           {...props}
         />
 

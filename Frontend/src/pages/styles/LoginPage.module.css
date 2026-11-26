@@ -308,3 +308,24 @@
     align-items: center;
     justify-content: center;
 }
+
+.inputError {
+    border-color: #C93B3B;
+}
+
+.inputError:focus {
+    border-color: #C93B3B;
+    box-shadow: 0 0 0 1px #C93B3B;
+}
+
+.errorText {
+    font-family: var(--second-family);
+    font-size: 13px;
+    color: #C93B3B;
+    margin: -10px 0 0 0;
+}
+
+.submitBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
