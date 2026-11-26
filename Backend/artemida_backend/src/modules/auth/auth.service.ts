@@ -14,7 +14,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid login or password');
     }
 
-    //TODO: ?
+    //TODO: 
     if (user.status === UserStatus.BLOCKED) {
       throw new ForbiddenException('Account is not active');
     }

@@ -30,8 +30,11 @@ async function bootstrap() {
   const redisHost = mode === APP_MODE.development ? process.env.REDIS_HOST_NAME_DEV : process.env.REDIS_HOST_NAME_PROD
   const redisPort = Number(process.env.REDIS_PORT)
   if(!redisHost || !redisPort) throw new Error("redis host/port not defined")
+  const redisPassword = process.env.REDIS_PASSWORD
+  if(!redisPassword) throw new Error("redis password not defined")
   const redisClient = createClient({
-    url: `redis://${redisHost}:${redisPort}`
+    socket: { host: redisHost, port: redisPort },
+    password: redisPassword,
   });
   redisClient.on('error', (err) => console.error('Redis Client Error', err));
   await redisClient.connect()
@@ -56,8 +59,10 @@ async function bootstrap() {
   )
 
   app.enableCors({
-    // origin: 'http://localhost:5173',
-    credentials: true,  
+    origin: 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   const options = new DocumentBuilder()

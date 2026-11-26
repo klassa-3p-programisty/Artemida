@@ -13,7 +13,7 @@ export class AuthGuard implements CanActivate {
     if (!userId) throw new UnauthorizedException();
 
     const user = await this.userService.getUserById(userId);
-    if (!user || user.status !== UserStatus.ACTIVE) {
+    if (!user || user.status === UserStatus.BLOCKED) {
       request.session.destroy(() => undefined);
       throw new UnauthorizedException();
     }
